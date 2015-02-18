@@ -165,17 +165,17 @@ class DatabaseWrapper(NonrelDatabaseWrapper):
 
         for descriptions of what each setting expects.
         '''
-        if not keyspace or keyspace == 'default':
-            keyspace = self.settings_dict.get(
-                'DEFAULT_KEYSPACE',
-                'django'
-            )
-
         if hasattr(
             self,
             'cluster'
         ) and None is not self.cluster:
             return
+
+        if not keyspace or keyspace == 'default':
+            keyspace = self.settings_dict.get(
+                'DEFAULT_KEYSPACE',
+                'django'
+            )
 
         settings = self.settings_dict
 

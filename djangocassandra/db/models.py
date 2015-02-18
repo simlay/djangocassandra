@@ -4,6 +4,9 @@ from cqlengine.models import (
     ModelMetaClass as CqlEngineModelMetaClass
 )
 from cqlengine.management import create_keyspace
+from django.db import (
+    DatabaseError
+)
 
 internal_type_to_column_map = {
     'AutoField': columns.UUID,
@@ -125,6 +128,7 @@ def get_column_family(
     connection,
     model
 ):
+    connection.configure_cluster()
     connection_settings = connection.settings_dict
 
     if hasattr(model, 'Cassandra'):

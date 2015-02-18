@@ -154,6 +154,7 @@ class CassandraQuery(NonrelQuery):
             'gte',
             'lt',
             'lte',
+            'eq',
         ]
 
         if lookup_type not in supported_lookup_types:
