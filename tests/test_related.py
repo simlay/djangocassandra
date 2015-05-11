@@ -39,7 +39,7 @@ class RelatedModelCreationTestCase(TestCase):
 
         objA = RelatedModelA.objects.create(data='FooBarLel')
         objB = RelatedModelB.objects.create(model_a=objA)
-        objC = RelatedModelC.objects.create(
+        RelatedModelC.objects.create(
             model_a=objA,
             model_b=objB
         )
@@ -95,7 +95,7 @@ class RelatedModelQueryTestCase(TestCase):
         obj_c0_stored = RelatedModelC.objects.get(
             pk=obj_c0.pk
         )
-        
+
         self.assertEqual(
             obj_a0.data,
             obj_a0_stored.data
@@ -112,3 +112,46 @@ class RelatedModelQueryTestCase(TestCase):
             obj_c0.model_b.model_a.data,
             obj_c0_stored.model_b.model_a.data
         )
+
+
+class RelatedModelInLookupQueryTestCase(TestCase):
+    def setUp(self):
+        self.connection = connect_db()
+
+        self.cached_rows = {}
+
+        create_model(
+            self.connection,
+            RelatedModelA
+        )
+        create_model(
+            self.connection,
+            RelatedModelB
+        )
+        create_model(
+            self.connection,
+            RelatedModelC
+        )
+
+        import django
+        django.setup()
+
+    def tearDown(self):
+        destroy_db(self.connection)
+
+    def test_lookup_related_query(self):
+        obj_a0 = RelatedModelA.objects.create(
+            data='MadFooBar'
+        )
+
+        obj_a1 = RelatedModelA.objects.create(
+            data='MadFooBar'
+        )
+        pks = [obj_a0.pk, obj_a1.pk]
+        in_lookup = RelatedModelA.objects.filter(pk__in=pks)
+        self.assertIn(obj_a0, in_lookup)
+        self.assertIn(obj_a1, in_lookup)
+
+    def test_empty_lookup_related_query(self):
+        in_lookup = RelatedModelA.objects.filter(pk__in=[])
+        self.assertListEqual([], list(in_lookup))
